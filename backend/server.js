@@ -21,9 +21,7 @@ app.use('/uploads', express.static(path.join(__dirname, '/uploads')))
 app.use(bodyParser.json())
 createConnectionDB()
  
-app.get('/', function (req, res) {
-  res.send('Hello World')
-})
+
 
 
 app.use('/api/products' ,routerProduct)
@@ -31,6 +29,17 @@ app.use('/api/user', routerUser)
 app.use('/api/order', routerOrder)
 app.use('/api/admin', routerAdmin)
 app.use('/api/upload', routerUpload)
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '/frontend/build')))
+  app.get('*', function(req, res){
+    res.sendFile(path.resolve(__dirname, 'frontend', 'build', 'index.html'))
+  })
+} else {
+  app.get('/', function (req, res) {
+    res.send('Hello World')
+  })
+}
 
 app.use(wrongPath, errorHappen)
 
