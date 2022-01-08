@@ -10,7 +10,8 @@
     "client": "npm start --prefix frontend",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "import_data": "node backend/seeder.js",
-    "delete_data": "node backend/seeder.js -d"
+    "delete_data": "node backend/seeder.js -d",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix frontend && npm run build --prefix frontend"
   },
   "author": "Nuttayos",
   "license": "ISC",
