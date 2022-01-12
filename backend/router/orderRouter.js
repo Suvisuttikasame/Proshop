@@ -3,7 +3,7 @@ import express from 'express'
 import { placeOrderController, getOrderById, getOderByUserId } from '../controller/ordersController.js'
 import { userAuthorizationHandler } from '../middlewareHandler/userHandler.js'
 import { scbAuthRequest } from '../middlewareHandler/paymentHandler.js'
-import { requestQRcode, confirmPayment, confirmTransaction } from '../controller/ordersController.js'
+import { requestQRcode, confirmPayment} from '../controller/ordersController.js'
 
 const routerOrder = express.Router()
 
@@ -17,6 +17,5 @@ routerOrder.route('/scbauth').post(scbAuthRequest, requestQRcode)
 
 routerOrder.route('/paymentconfirm').post(confirmPayment)
 
-routerOrder.route('/transactionconfirm').post(confirmTransaction)
 
 export default routerOrder

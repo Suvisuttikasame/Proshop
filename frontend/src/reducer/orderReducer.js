@@ -42,7 +42,10 @@ export const orderDetailReducer = (state = { orderDetail: {shippingAddress:{}, o
                 loading: false,
                 error: action.payload
             }
-
+        case 'ORDER_RESET':
+            return{
+                orderDetail: {shippingAddress:{}, orderItems:[]} 
+            }    
     
         default:
             return state
@@ -107,31 +110,3 @@ export const qrCodeGenReducer = (state={qrText:''}, action)=>{
 } 
 
 
-export  const confirmTransactionReducer = (state={ updatePayment: null }, action)=>{
-    switch (action.type) {
-        case 'CONFIRM_TT_REQUEST':
-            return{
-                ...state,
-                loading: true
-            }
-        case 'CONFIRM_TT_SUCCESS':
-            return{
-                updatePayment: action.payload,
-                loading: false
-            }
-        case 'CONFIRM_TT_FAIL' :
-            return{
-                loading: false,
-                error: action.payload
-            }
-        case 'CONFIRM_TT_RESET' :
-            return{
-                updatePayment: null
-            }   
-        
-    
-        default:
-            return state
-    }
-
-}

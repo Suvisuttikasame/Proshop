@@ -1,6 +1,8 @@
 import Order from '../dataModel/orderModel.js'
 import axios from 'axios'
 import Payment from '../dataModel/paymentModel.js'
+import { wss } from '../server.js'
+import WebSocket from 'ws'
 
 export const placeOrderController = async (req, res, next) =>{
     try {
@@ -69,7 +71,7 @@ export const requestQRcode = async(req, res, next)=>{
     
     const id = req.body.id  
     const price = req.body.price
-
+     
     
     const config = {
         headers:{
@@ -85,14 +87,16 @@ export const requestQRcode = async(req, res, next)=>{
         ppType: 'BILLERID',
         ppId: process.env.SCB_BILLER_ID,
         amount: price,
-        ref1: 'REFERENCE1',
-        ref2: 'REFERENCE2',
+        ref1: id.substring(0, 12).toUpperCase(),
+        ref2: id.substring(12).toUpperCase(),
         ref3: process.env.SCB_REF3
     }
-
+    
+       
 
     try {
         const { data } = await axios.post('https://api-sandbox.partners.scb/partners/sandbox/v1/payment/qrcode/create', payload, config)
+        
         res.json(data)
     } catch (error) {
         next(error)
@@ -101,11 +105,36 @@ export const requestQRcode = async(req, res, next)=>{
 }
 
 export const confirmPayment =async(req, res, next)=>{
+
+    const {transactionId, billPaymentRef1, billPaymentRef2, transactionDateandTime} = req.body
+    
+    const orderId = (billPaymentRef1 + billPaymentRef2).toLowerCase()
     
     try {
-    const {transactionId} = req.body
-    
     await Payment.create(req.body)
+           
+    const order = await Order.findById({_id: orderId})
+    
+
+    if (order) {
+            const payment = await Payment.findOne({transactionId})
+            
+            order.paymentResult = payment._id
+            order.isPaid = true
+            order.paidAt = transactionDateandTime
+            
+            order.save()
+
+            wss.clients.forEach((client) => {
+                
+                if (client.readyState === WebSocket.OPEN && client.id === orderId) {
+                    
+                    client.send("payment complete")
+                } 
+                
+              })
+    }
+    
 
 
     res.send(`success to pay #${transactionId}`)
@@ -115,27 +144,3 @@ export const confirmPayment =async(req, res, next)=>{
     
 }
 
-
-export const confirmTransaction = async (req, res, next)=>{
-    const {transactionId, orderId} = req.body
-
-    try {
-        const transaction = await Payment.findOne({transactionId})
-        if(!transaction){
-            next(new Error('No transaction id'))
-        }else{
-            const order = await Order.findById({_id: orderId})
-            
-            order.paymentResult = transaction._id
-            order.isPaid = true
-            order.paidAt = transaction.transactionDateandTime
-            
-            const updatePayment = await order.save()
-
-            res.json(updatePayment)
-        }
-        
-    } catch (error) {
-        next(error)
-    }
-}

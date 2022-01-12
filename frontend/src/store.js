@@ -4,7 +4,7 @@ import {composeWithDevTools} from 'redux-devtools-extension'
 import {productListReducer, productDetailReducer, productReviewReducer} from './reducer/productReducer'
 import { addToCart } from './reducer/cartReducer'
 import {userLoginReducer, userRegisterReducer, userProfileReducer, checkUserPasswordReducer, updateUserPasswordReducer} from './reducer/userReducer'
-import { placeOrderReducer, orderByUserIdReducer, orderDetailReducer, qrCodeGenReducer, confirmTransactionReducer } from './reducer/orderReducer'
+import { placeOrderReducer, orderByUserIdReducer, orderDetailReducer, qrCodeGenReducer} from './reducer/orderReducer'
 import {adminManageUserReducer, adminManageProductReducer, adminManageOrderReducer} from './reducer/adminReducer'
 
 const reducer = combineReducers({
@@ -21,7 +21,6 @@ const reducer = combineReducers({
     orderByUserId: orderByUserIdReducer,
     orderDetail: orderDetailReducer,
     qrCodeGen : qrCodeGenReducer,
-    confirmTransaction : confirmTransactionReducer,
     adminManageUser : adminManageUserReducer,
     adminManageProduct : adminManageProductReducer,
     adminManageOrder : adminManageOrderReducer

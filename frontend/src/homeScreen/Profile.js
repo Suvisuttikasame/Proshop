@@ -34,6 +34,13 @@ function Profile(){
     const buttonHandler=()=>{
             setState(false)
     }
+
+    const toProductPageHandler=()=>{
+        
+            dispatch({
+                type: 'ORDER_RESET'
+            })
+    }
     
     return<Container className='justify-content-center'>
         <Row>
@@ -72,7 +79,7 @@ function Profile(){
                                     Order {index + 1}:
                                 </Col>
                                 <Col md={6}>
-                                    <Link to={`/order/${x._id}`}>{x._id}</Link>
+                                    <Link to={`/order/${x._id}`} onClick={toProductPageHandler}>{x._id}</Link>
                                 </Col>
                             </Row>
                         </ListGroup.Item>})}

@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react'
-import { Button, Container, Modal, Form } from 'react-bootstrap'
+import React, { useState, useEffect, useMemo } from 'react'
+import { Button, Container, Modal} from 'react-bootstrap'
 import QRcode from 'qrcode.react'
-import {qrCodeGenAction, confirmTransactionAction, orderDetailAction} from '../action/orderAction'
+import {qrCodeGenAction,  orderDetailAction} from '../action/orderAction'
 import {useSelector, useDispatch} from 'react-redux'
 import Loading from './Loading'
 import Message from './Message'
-import { useNavigate} from 'react-router-dom'
+import WebSocket from 'isomorphic-ws'
 
 
 
@@ -13,12 +13,15 @@ import { useNavigate} from 'react-router-dom'
 function Popup({ id, total }) {
 
     const dispatch =useDispatch()
-    const navigate = useNavigate()
-
-    const { updatePayment, loading : paymentLoad, error: paymentError } = useSelector(state => state.confirmTransaction) 
+    
+    
     const { qrText, loading, error } = useSelector(state => state.qrCodeGen)
+    const { orderDetail} = useSelector(state => state.orderDetail)
     const [show, setShow] = useState(false);
-    const [transactionId, setTransactionId] = useState('')
+    const [paymentStatus, setPaymentStatus] = useState(false)
+    
+    
+    const ws =useMemo(()=> new WebSocket(`ws://127.0.0.1:5000?orderid=${orderDetail._id}`), [orderDetail._id]) 
   
     const handleClose = () => {
       dispatch({
@@ -26,31 +29,51 @@ function Popup({ id, total }) {
       })
       setShow(false)
     };
-    const handleShow = () => {
+    const handleShow =  () => {
+      
       if (qrText.length===0) {
         dispatch(qrCodeGenAction(id, total))
+        
       }
       setShow(true)
+      
     };
 
-    const confirmPaymentHandler = ()=>{
-      dispatch({
-        type:'QR_RESET'
-      })
-      dispatch(confirmTransactionAction(transactionId, id))
-        
-    }
+    
 
     useEffect(()=>{
-        if(updatePayment){
+      
+      ws.onopen = function open() {
+        console.log('connected');
+        ws.send('Im client');
+        
+      };
+
+      ws.onmessage = function incoming(data) {
+        
+        if (data.data === 'payment complete') {
+          setPaymentStatus(true)
+        } 
+        
+        
+      };
+
+
+    },[ws])
+
+    
+    useEffect(()=>{
+        
+        if(paymentStatus){
           dispatch((orderDetailAction(id)))
+          setPaymentStatus(false)
           setShow(false)
           dispatch({
-            type: 'CONFIRM_TT_RESET'
+            type:'QR_RESET'
           })
-          
         }
-    },[updatePayment, dispatch, navigate, id])
+        
+    },[paymentStatus, dispatch, id])
   
     return (
       <>
@@ -75,19 +98,10 @@ function Popup({ id, total }) {
           </Container>
           <Modal.Body>
              <h4>Scan and pay your order.</h4>
-        <Form.Group  controlId="confirmTransactionId" style={{textAlign: 'left'}}>
-        <Form.Label >Transaction id</Form.Label>
-        <Form.Control type="text" placeholder="fill in your transaction id" required value={transactionId}  onChange={e => setTransactionId(e.target.value)}/>
-        </Form.Group>
-        {
-              paymentLoad ? <Loading />:
-              paymentError ? <Message variant={'danger'}>{paymentError}</Message>:
-              <></>
-            }
+        
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="primary" onClick={confirmPaymentHandler}>Confirm payment</Button>
-           
+                       
           </Modal.Footer>
         </Modal>
       </>

@@ -9,6 +9,7 @@ import Popup from '../components/Popup'
 
 
 
+
 function Order(){
 
     const {id} = useParams()
@@ -24,6 +25,7 @@ function Order(){
             dispatch((orderDetailAction(id)))
             
         }
+        
     },[id, dispatch])
     
 
@@ -121,8 +123,9 @@ function Order(){
                         </Row>
                     </Card.Body>
                     {
-                        orderDetail.isPaid ?<></>:
-                    <Popup id={id} total={String(orderDetail.totalPrice)}/>
+                       orderItems.length > 0 && (orderDetail.isPaid ?<></>:
+                        <Popup id={id} total={String(orderDetail.totalPrice)}/>)
+                    
                     }                    
                 </Card>
                                    

@@ -131,7 +131,8 @@ export const qrCodeGenAction =(orderId, price) => async (dispatch)=>{
         try {
             const { data } = await axios.post('/api/order/scbauth', {
                 id: orderId,
-                price
+                price,
+                
             }, config)
             
             dispatch({
@@ -148,31 +149,3 @@ export const qrCodeGenAction =(orderId, price) => async (dispatch)=>{
 }
 
 
-export const confirmTransactionAction = (transactionId, orderId)=> async(dispatch)=>{
-    dispatch({
-        type: 'CONFIRM_TT_REQUEST'
-    })
-    const config = {
-        headers:{
-            'Content-Type':'application/json'
-        }
-    }
-
-    try {
-        const { data } = await axios.post('/api/order/transactionconfirm', {
-            transactionId,
-            orderId
-        }, config)
-
-        dispatch({
-            type:'CONFIRM_TT_SUCCESS',
-            payload : data
-        })
-    } catch (error) {
-        dispatch({
-            type: 'CONFIRM_TT_FAIL',
-            payload:error.response && error.response.data.message ? error.response.data.message: error.message 
-        })
-    }
-
-}
