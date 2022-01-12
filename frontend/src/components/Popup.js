@@ -21,7 +21,7 @@ function Popup({ id, total }) {
     const [paymentStatus, setPaymentStatus] = useState(false)
     
     
-    const ws =useMemo(()=> new WebSocket(`ws://127.0.0.1:5000?orderid=${orderDetail._id}`), [orderDetail._id]) 
+    const ws =useMemo(()=> new WebSocket(`ws://nuttoshop.herokuapp.com?orderid=${orderDetail._id}`), [orderDetail._id]) 
   
     const handleClose = () => {
       dispatch({
